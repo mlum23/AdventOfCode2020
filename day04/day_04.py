@@ -108,6 +108,7 @@ def valid_passport_count(file_name):
                             valid_field = validate[key](value)
 
                         if not valid_field:
+                            print(f'FALSE: {key}, {value}')
                             all_fields_valid = False
 
             elif line == '\n':
