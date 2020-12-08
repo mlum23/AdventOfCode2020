@@ -1,11 +1,17 @@
+ACC_CHANGE_VALUE = 1
+NOP_CHANGE_VALUE = 1
+INITIAL_INDEX = 0
+INITIAL_ACC = 0
+
+
 def part_one(file_name):
     """
     Prints the accumulator total before instruction is executed a second time.
 
     :param file_name: the name of the file which contains the instructions, as a string.
     """
-    acc = 0
-    index = 0
+    acc = INITIAL_ACC
+    index = INITIAL_INDEX
     visited_indices = []
     with open(file_name, 'r') as file:
         instructions = file.read().split('\n')
@@ -16,9 +22,9 @@ def part_one(file_name):
             value = int(instruction[1].replace('+', ''))
             if argument == 'acc':
                 acc += value
-                index += 1
+                index += ACC_CHANGE_VALUE
             elif argument == 'nop':
-                index += 1
+                index += NOP_CHANGE_VALUE
             elif argument == 'jmp':
                 index += value
 
@@ -35,8 +41,8 @@ def part_two(file_name):
 
     :param file_name: the name of the file, as a string.
     """
-    acc = 0
-    index = 0
+    acc = INITIAL_ACC
+    index = INITIAL_INDEX
     visited_indices = []
     swap_successful = False
 
@@ -50,24 +56,24 @@ def part_two(file_name):
             value = int(instruction[1].replace('+', ''))
             if argument == 'acc':
                 acc += value
-                index += 1
+                index += ACC_CHANGE_VALUE
             elif argument == 'nop':
                 if not swap_successful:
-                    already_visited = visited_indices.copy()  # Create a deep copy for for running swapped version
+                    already_visited = visited_indices.copy()  # Create a deep copy for running swapped version
                     swap_worked = run_swapped(instructions, already_visited, index + value, acc)
 
                     # If the swap did not work, update as usual
                     # Otherwise, treat nop as jmp
                     if not swap_worked:
-                        index += 1
+                        index += NOP_CHANGE_VALUE
                     else:  # The swap algorithm worked, so no need to keep iterating
                         break
                 else:
-                    index += 1
+                    index += NOP_CHANGE_VALUE
             elif argument == 'jmp':
                 if not swap_successful:
-                    already_visited = visited_indices.copy()  # Create a deep copy for for running swapped version
-                    swap_worked = run_swapped(instructions, already_visited, index + 1, acc)
+                    already_visited = visited_indices.copy()  # Create a deep copy for running swapped version
+                    swap_worked = run_swapped(instructions, already_visited, index + NOP_CHANGE_VALUE, acc)
 
                     # If the swap did not work, update as usual
                     # Otherwise, treat jmp as nop
@@ -88,6 +94,7 @@ def run_swapped(instructions, already_visited_temp, index, acc):
 
     This is a helper function for part_two.
     It runs starting from the place where we swapped jmp with nop, and vice versa
+
     :param instructions: the set of instructions, as an array of strings.
     :param already_visited_temp: an array of indices (instructions) that has
                                  already been executed, as an array of integers.
@@ -104,9 +111,9 @@ def run_swapped(instructions, already_visited_temp, index, acc):
 
         if argument == 'acc':
             acc += value
-            index += 1
+            index += ACC_CHANGE_VALUE
         elif argument == 'nop':
-            index += 1
+            index += NOP_CHANGE_VALUE
         elif argument == 'jmp':
             index += value
 
