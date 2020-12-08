@@ -66,17 +66,7 @@ def validate_cid(cid):
     return True
 
 
-def valid_passport_count(file_name):
-    count = 0
-    strict_count = 0
-    num_fields = 0
-
-    all_fields_valid = True
-    cid_missing = True
-
-    expected_fields = ['byr', 'iyr', 'eyr', 'hgt',
-                       'hcl', 'ecl', 'pid', 'cid']
-
+def validate_fields(list_of_fields):
     validate = {
                 'byr': validate_birth_year,
                 'iyr': validate_issue_year,
@@ -88,44 +78,43 @@ def valid_passport_count(file_name):
                 'cid': validate_cid
                 }
 
+    is_all_valid = True
+    print(list_of_fields)
+    for field in list_of_fields:
+        field = field.split(':')
+        key, val = field[0], field[1]
+
+        is_valid = validate[key](val)
+        print(f'{key}, {val}, {is_valid}')
+
+        if not is_valid:
+            return False
+    return is_all_valid
+
+
+def valid_passport_count(file_name):
+    count = 0
+    strict_count = 0
+
     with open(file_name, 'r') as file:
-        for line in file:
-            if line != '\n':
-                fields = line.split(' ')
-                num_fields += len(fields)
+        groups = list(map(str.split, file.read().split('\n\n')))
+        for group in groups:
+            if len(group) == 8:
+                count += 1
+                all_valid = validate_fields(group)
+                if all_valid:
+                    strict_count += 1
 
-                for field in fields:
-                    if field.find('cid') != -1:
-                        cid_missing = False
-
-                    field = field.replace('\n', '')
-                    split_field = field.split(':')
-
-                    if all_fields_valid:
-                        key = split_field[0]
-                        value = split_field[1]
-                        if key != 'cid':
-                            valid_field = validate[key](value)
-
-                        if not valid_field:
-                            print(f'FALSE: {key}, {value}')
-                            all_fields_valid = False
-
-            elif line == '\n':
-                only_missing_cid = cid_missing and (num_fields == 7)
-
-                # All fields present
-                if num_fields == len(expected_fields) or only_missing_cid:
+            elif len(group) == 7:
+                contains_cid = [s for s in group if 'cid' in s]
+                if len(contains_cid) < 1:  # the group does not contain cid
                     count += 1
-                    if all_fields_valid:
+                    all_valid = validate_fields(group)
+                    if all_valid:
                         strict_count += 1
 
-                num_fields = 0
-                cid_missing = True
-                all_fields_valid = True
-
-        print(f'Passports with all required fields: {count}')
-        print(f'Passports with all required fields and valid entry: {strict_count}')
+    print(f'Number of valid passports (part 1): {count}')
+    print(f'Number of valid passports (part 2): {strict_count}')
 
 
 def main():
