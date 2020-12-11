@@ -29,16 +29,12 @@ def part_two(bags_list, search):
                 other_bag = content.split(None, 1)
                 quantity = int(other_bag[0])
                 bag_type = other_bag[1].split(' bag')[0]
-                print(other_bag)
 
                 print(f'Inside {search}:There are {quantity} {bag_type}')
-
+                # result += quantity
                 result += quantity * part_two(bags_list, bag_type)
-                if search == 'shiny gold':
-                    result += quantity
+
                 print(f'Inside {search}: Result after adding {quantity} {bag_type}: {result}')
-
-
 
     return result
 
